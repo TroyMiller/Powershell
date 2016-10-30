@@ -1,0 +1,19 @@
+name,template,oscust,cluster,environment,datastorecluster,ip,mask,gw,dns1,dns2,vlan,ram,diskc,diskd,disky,diske,cpu,notes
+JMTAPP00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.230,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,none,none,none,1,QA00 - Internal Web Applications
+JMTAUT00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.231,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,none,none,none,1,QA00 - AD LDS (Portal Authentication)
+JMTDGN00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.232,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,40,none,none,2,QA00 - Thunderhead
+JMTGBC00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.233,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,12,80,none,none,none,4,QA00 - Billing Center
+JMTGCC00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.234,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,12,80,none,none,none,2,QA00 - Claim Center
+JMTGCM00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.235,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,6,80,none,none,none,2,QA00 - Contact Manager
+JMTGPC00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.236,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,12,80,none,none,none,4,QA00 - Policy Center
+JMTIDP00,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.237,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,none,none,none,1,QA00 - Identity Provider (SSO using Shibboleth)
+JMTIMG00,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.238,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,8,80,140,none,none,2,QA00 - ImageRight
+JMTRAT00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.239,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,100,none,none,1,QA00 - Ratabase
+JMTSAS00,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.240,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,24,80,250,none,none,8,QA00 - Analysis Services
+JMTSQL201,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.11.101,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,12,80,20,150,10,2,QA00 - SQL 2008 instance
+JMTSQL202,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.11.102,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,36,80,60,250,10,2,QA00 - SQL 2008R2 instance
+JMTSQL203,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.11.103,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,24,80,80,150,10,2,QA00 - SQL 2012 instance
+JMTSQL204,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.11.104,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,96,80,80,1536,10,6,QA00 - SQL DW instance
+JMTSVC00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.4.241,255.255.255.0,10.3.4.1,10.3.1.165,10.3.1.169,dv-DEV-vlan54,4,80,none,none,none,1,QA00 - Internal Web Services
+JMTWAP00,W2K8R2_STD_Template_Test,JM 2008R2 Guest Customization,JMDEV01,QA0,PureM01_SRV,10.3.251.230,255.255.255.0,10.3.251.1,10.3.1.165,10.3.1.169,dv-DEV-vlan251,4,80,none,none,none,1,QA00 - External Web (all internet)
+JMTWSV00,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,QA0,PureM01_SRV,10.3.251.231,255.255.255.0,10.3.251.1,10.3.1.165,10.3.1.169,dv-DEV-vlan251,4,80,none,none,none,1,QA00 - External services (API gateway only)

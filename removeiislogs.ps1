@@ -1,0 +1,1 @@
+get-childitem -Path C:\inetpub\logs\LogFiles -recurse | where-object {$_.lastwritetime -lt (get-date).addDays(-90)} | Foreach-Object { del $_.FullName /q }

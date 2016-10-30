@@ -1,0 +1,5 @@
+name,template,oscust,cluster,environment,datastorecluster,ip,mask,gw,dns1,dns2,vlan,ram,diskc,diskd,disky,diske,cpu,notes
+JMDSQL101,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,DEV00,PureM01_SRV,10.3.11.101,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,12,80,20,150,10,2,DEV00 - SQL 2008 instance
+JMDSQL102,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,DEV00,PureM01_SRV,10.3.11.102,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,36,80,60,250,10,2,DEV00 - SQL 2008R2 instance
+JMDSQL103,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,DEV00,PureM01_SRV,10.3.11.103,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,24,80,80,150,10,2,DEV00 - SQL 2012 instance
+JMDSQL104,W2K12R2_DC_Template_Test,JM 2012R2 Datacenter Customization,JMDEV01,DEV00,PureM01_SRV,10.3.11.104,255.255.255.0,10.3.11.1,10.3.1.165,10.3.1.169,dv-DEV-vlan61,96,80,80,1536,10,6,DEV00 - SQL DW instance

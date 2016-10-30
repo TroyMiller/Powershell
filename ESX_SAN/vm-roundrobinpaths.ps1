@@ -1,0 +1,3 @@
+﻿Get-VMHost jmpvmw62.jewelersnt.local | Get-ScsiLun -CanonicalName "naa.6000d31*" | Where-Object {$_.MultipathPolicy -ne “RoundRobin”} | Set-ScsiLun -MultipathPolicy "roundrobin"
+#get-cluster JMVDI01 | Get-VMHost | Get-ScsiLun -LunType disk | Where-Object {$_.MultipathPolicy -ne “RoundRobin”} | Set-ScsiLun -MultipathPolicy “RoundRobin”
+#Get-VMHost jmpvmw72.jewelersnt.local | Get-ScsiLun -LunType disk | Where {$_.MultipathPolicy -ne “RoundRobin”} | Set-ScsiLun -MultipathPolicy “RoundRobin”
