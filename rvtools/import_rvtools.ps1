@@ -78,6 +78,7 @@ $ImportScriptBlock = {
     Write-Verbose "Writing $tableName values to SQL" -Verbose
     
     #Close Excel
+    $Excel.Workbooks.Close()
     $Excel.Quit()
     [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel)
     Remove-Variable Excel
@@ -85,7 +86,7 @@ $ImportScriptBlock = {
 }
 
 #create object to open Excel workbook
-$filepath = Get-FileName "c:\temp"
+$filepath = Get-FileName "c:\"
 $Excel = New-Object -ComObject Excel.Application
 $Workbook = $Excel.Workbooks.Open($filepath)
 
@@ -105,22 +106,23 @@ $worksheetCurrent=1
 Foreach ($sheet in $workbook.worksheets) {
     Start-Job $ImportScriptBlock -ArgumentList $filepath,$worksheetCurrent, $date, $customer
     $worksheetCurrent++
-#    $dt.Columns.Clear()
-#    $dt.Rows.Clear()
+
 }
-#while ($worksheetCurrent -le  $worksheetTotal)
+
 # Wait for it all to complete
 While (Get-Job -State "Running")
 {
+  $current_time = get-date
   $runningjobs = (Get-Job -State "Running").Count
-  Write-Verbose "Currently $runningjobs of $worksheettotal remaining" -Verbose
-  Start-Sleep 10
+  Write-Verbose "$current_time :Currently $runningjobs of $worksheettotal remaining" -Verbose
+  Start-Sleep 30
 }
 
 # Getting the information back from the jobs
 Get-Job | Out-GridView
 
 #Close Excel
+$Excel.Workbooks.Close()
 $Excel.Quit()
 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel)
 Remove-Variable Excel
