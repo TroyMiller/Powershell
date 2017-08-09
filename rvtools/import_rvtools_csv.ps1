@@ -32,6 +32,8 @@ function Get-FileName($initialDirectory)
     $OpenFileDialog.filename
 }
 
+
+
 function Import-vInfo($sqlserver, $database, $sqluser, $sqlpassword)
 {
 
@@ -91,6 +93,7 @@ function Import-vInfo($sqlserver, $database, $sqluser, $sqlpassword)
 }
 
 
+
 function Import-vDisk($sqlserver, $database, $sqluser, $sqlpassword)
 {
 
@@ -131,6 +134,8 @@ function Import-vDisk($sqlserver, $database, $sqluser, $sqlpassword)
     
     } 
 }
+
+
 
 function Import-vPartition($sqlserver, $database, $sqluser, $sqlpassword)
 {
@@ -177,6 +182,94 @@ function Import-vPartition($sqlserver, $database, $sqluser, $sqlpassword)
     } 
 }
 
+
+
+function Import-vHealth($sqlserver, $database, $sqluser, $sqlpassword)
+{
+
+    
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+    
+    $impcsv = (get-childitem C:\CSVFiles\*vhealth*.csv).FullName
+    $data = import-csv $impcsv 
+    $count = 1 
+    
+    foreach($i in $data){ 
+        $scandate = $date
+        $customer = $customer
+        $vmName = $i.name
+        $vmMessage = $i.Message
+        $vi_sdk_server = $i."vi sdk server"
+        $vi_sdk_uuid = $i."vi sdk uuid"
+        
+        
+    
+    $query = "INSERT INTO vHealth (scandate, customer, vmName, vmMessage, vi_sdk_server, vi_sdk_uuid) 
+                VALUES ('$scandate','$customer','$vmName','$vmMessage','$vi_sdk_server','$vi_sdk_uuid')" 
+    
+    $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    
+    write-host "vHealth Processing row ..........$count" -foregroundcolor green 
+    
+    $count  = $count + 1 
+    
+    } 
+}
+
+
+
+function Import-vCluster($sqlserver, $database, $sqluser, $sqlpassword)
+{
+
+    
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+    
+    $impcsv = (get-childitem C:\CSVFiles\*vcluster*.csv).FullName
+    $data = import-csv $impcsv 
+    $count = 1 
+    
+    foreach($i in $data){ 
+        $scandate = $date
+        $customer = $customer
+        $ClusterName = $i.name
+        $NumHosts = $i.NumHosts
+        $numEffectiveHosts = $i.NumEffectiveHosts
+        $TotalCpu = $i.TotalCPU.replace(",","")
+        $NumCpuCores = $i.NumCPUCores
+        $NumCpuThreads = $i.NumCPUThreads
+        $Effective_Cpu = $i."Effective CPU".replace(",","")
+        $TotalMemory = $i.TotalMemory.replace(",","")
+        $Effective_Memory = $i."Effective Memory".replace(",","")
+        $HA = $i."HA Enabled"
+        $Failover = $i."Failover Level"
+        $AdmissionControlEnabled = $i.AdmissionControlEnabled
+        $Host_monitoring = $i."Host Monitoring"
+        $HB_Datastore_Candidate_Policy = $i."HB Datastore Candidate Policy"
+        $VM_Monitoring = $i."VM Monitoring"
+        $DRS = $i."DRS Enabled"
+        $DRS_default_VM_behavior = $i."DRS Default VM Behavior"
+        $DRS_vmotion_rate = $i."DRS vmotion rate"
+        $vi_sdk_server = $i."vi sdk server"
+        $vi_sdk_uuid = $i."vi sdk uuid"
+        
+        
+    
+    $query = "INSERT INTO vCluster (scandate, customer, ClusterName, NumHosts, numEffectiveHosts, TotalCpu, NumCpuCores, NumCpuThreads, Effective_Cpu, TotalMemory, Effective_Memory, HA_enabled, Failover_Level, AdmissionControlEnabled, Host_monitoring, HB_Datastore_Candidate_Policy, VM_Monitoring, DRS_enabled, DRS_default_VM_behavior, DRS_vmotion_rate, VI_SDK_Server, VI_SDK_UUID ) 
+                VALUES ('$scandate','$customer','$ClusterName','$NumHosts','$numEffectiveHosts','$TotalCpu','$NumCpuCores','$NumCpuThreads','$Effective_Cpu','$TotalMemory','$Effective_Memory','$HA','$Failover','$AdmissionControlEnabled','$Host_monitoring','$HB_Datastore_Candidate_Policy','$VM_Monitoring','$DRS','$DRS_default_VM_behavior','$DRS_vmotion_rate','$vi_sdk_server','$vi_sdk_uuid')" 
+    
+    $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    
+    write-host "vCluster Processing row ..........$count" -foregroundcolor green 
+    
+    $count  = $count + 1 
+    
+    } 
+}
+
 $excelpath = Get-FileName "c:\"
 
 #Prompt for Customer Name
@@ -193,6 +286,8 @@ $date = $filedate.ToString("MM/dd/yyyy")
 Import-vInfo $sqlserver $database $sqluser $sqlpassword
 Import-vDisk $sqlserver $database $sqluser $sqlpassword
 Import-vPartition $sqlserver $database $sqluser $sqlpassword
+Import-vHealth $sqlserver $database $sqluser $sqlpassword
+Import-vCluster $sqlserver $database $sqluser $sqlpassword
 
 #Remove CSV Files
 Remove-item C:\CSVFiles\*.csv -Confirm:$false
