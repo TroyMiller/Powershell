@@ -380,7 +380,7 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vDatastore (scandate, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB_Free, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, Version, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
+    $query = "INSERT INTO vDatastore (scandate, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB_Free, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, dsVersion, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
                 VALUES ('$scandate','$customer','$Name','$Address','$Accessible','$Type','$num_VMs','$Capacity_MB','$Provisioned_MB','$In_Use_MB','$Free_MB_Free','$SIOC_enabled','$SIOC_Threshold','$num_Hosts','$Hosts','$Block_size','$Max_Blocks','$num_Extents','$Major_Version','$Version','$VMFS_Upgradeable','$MHA','$URL','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
