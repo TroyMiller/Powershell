@@ -411,6 +411,7 @@ Import-vPartition $sqlserver $database $sqluser $sqlpassword
 Import-vHealth $sqlserver $database $sqluser $sqlpassword
 Import-vCluster $sqlserver $database $sqluser $sqlpassword
 Import-vHost $sqlserver $database $sqluser $sqlpassword
+Import-vDatastore $sqlserver $database $sqluser $sqlpassword
 
 #Remove CSV Files
 Remove-item C:\CSVFiles\*.csv -Confirm:$false
