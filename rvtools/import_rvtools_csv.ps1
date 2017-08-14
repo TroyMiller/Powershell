@@ -368,8 +368,8 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
         $SIOC_Threshold = $i."SIOC Threshold"
         $num_Hosts = $i."# Hosts"
         $Hosts = $i.Hosts
-        $Block_size = $i."Block size".replace(",","")
-        $Max_Blocks = $i."Max Blocks"
+        $Block_size = $i."Block size"
+        $Max_Blocks = $i."Max Blocks".replace(",","")
         $num_Extents = $i."# Extents"
         $Major_Version = $i."Major Version"
         $Version = $i.Version
