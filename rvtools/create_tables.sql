@@ -61,6 +61,7 @@ Consumed_MB INT,
 Free_MB INT,
 VM_ID VARCHAR(255),
 VM_UUID VARCHAR(255),
+DATA_CLASSIFICATION VARCHAR(255),
 );
 
 CREATE TABLE vHealth (
@@ -158,7 +159,7 @@ Free_MB_Free INT,
 SIOC_enabled BIT,
 SIOC_Threshold SMALLINT,
 num_Hosts SMALLINT,
-Hosts VARCHAR(255),
+Hosts VARCHAR(1024),
 Block_size SMALLINT,
 Max_Blocks INT,
 num_Extents SMALLINT,

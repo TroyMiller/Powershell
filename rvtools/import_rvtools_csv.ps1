@@ -395,14 +395,20 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
 $excelpath = Get-FileName "c:\"
 
 #Prompt for Customer Name
-$customer = Read-Host "Enter Customer Name"
-
+#$customer = Read-Host "Enter Customer Name"
+$customer = import-csv C:\temp\companypickerlist.csv | select "Company Name" | Out-GridView -PassThru -Title "Choose Customer Name for Import" 
+$customer = $customer.'Company Name'
 
 ExportWSToCSV $excelpath -csvLoc "C:\CSVFiles\"
 
 #Set date based on file creation
 $filedate = (Get-item $excelpath).LastWriteTime
-$date = $filedate.ToString("MM/dd/yyyy")
+$filedate = $filedate.ToString("MM/dd/yyyy")
+$date = Read-host -Prompt "RVTools Import date [$filedate]"
+if ([string]::IsNullOrWhiteSpace($date))
+    {
+    $date=$filedate
+    }
 
 
 Import-vInfo $sqlserver $database $sqluser $sqlpassword
