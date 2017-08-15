@@ -34,6 +34,46 @@ function Get-FileName($initialDirectory)
 }
 
 
+function Get-CustomerList($sqlserver, $database, $sqluser, $sqlpassword)
+{
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+
+    $query = "SELECT ID,Company_Name,CusSite FROM Customers"
+
+    $results = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+
+    return $results
+}
+
+
+function Set-ScanID($sqlserver, $database, $sqluser, $sqlpassword, $Customer_ID, $scandate)
+{   
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+    $scandate = [datetime]$scandate
+
+    $query = "SELECT ID,CUstomer_ID,ScanDate FROM SCAN_ID where Customer_ID = '$customer_ID' and ScanDate = '$scandate'"
+
+    $results = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    if ($results) 
+    {
+        Write-Host "Duplicate Scan Detected" -ForegroundColor Red
+        exit
+    }
+    Else
+    {
+        $query = "INSERT INTO Scan_ID (Customer_ID, ScanDate) VALUES ('$Customer_ID','$scandate')"
+        $create_scanid = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+        Write-Host "Creating new Scan_ID" -ForegroundColor Green
+    }
+    $query = "SELECT ID FROM SCAN_ID where Customer_ID = '$customer_ID' and ScanDate = '$scandate'"
+    $results = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    Return $results
+}
+
 
 function Import-vInfo($sqlserver, $database, $sqluser, $sqlpassword)
 {
@@ -48,7 +88,7 @@ function Import-vInfo($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $vm = $i.vm
         $powerstate = $i.powerstate
@@ -81,8 +121,8 @@ function Import-vInfo($sqlserver, $database, $sqluser, $sqlpassword)
         $vi_sdk_server = $i."vi sdk server"
         $vi_sdk_uuid = $i."vi sdk uuid"
     
-    $query = "INSERT INTO vInfo (scandate, customer, vm, powerstate, template, dns_name, poweron, cpus, memory, nics, disks, network_1, resource_pool, provisioned_MB, in_use_mb, unshared_mb, vm_path, annotation, datacenter, cluster, host, os_config, os_tools, vm_id, vm_uuid, vi_sdk_server_type, vi_sdk_server, vi_sdk_uuid) 
-                VALUES ('$scandate','$customer','$vm','$powerstate','$template','$dns_name','$poweron','$cpus','$memory','$nics','$disks','$network_1','$resource_pool','$provisioned_MB','$in_use_mb','$unshared_mb','$vm_path','$annotation','$datacenter','$cluster','$vmhost','$os_config','$os_tools','$vm_id','$vm_uuid','$vi_sdk_server_type','$vi_sdk_server','$vi_sdk_uuid')" 
+    $query = "INSERT INTO vInfo (scan_id, customer, vm, powerstate, template, dns_name, poweron, cpus, memory, nics, disks, network_1, resource_pool, provisioned_MB, in_use_mb, unshared_mb, vm_path, annotation, datacenter, cluster, host, os_config, os_tools, vm_id, vm_uuid, vi_sdk_server_type, vi_sdk_server, vi_sdk_uuid) 
+                VALUES ('$scan_id','$customer','$vm','$powerstate','$template','$dns_name','$poweron','$cpus','$memory','$nics','$disks','$network_1','$resource_pool','$provisioned_MB','$in_use_mb','$unshared_mb','$vm_path','$annotation','$datacenter','$cluster','$vmhost','$os_config','$os_tools','$vm_id','$vm_uuid','$vi_sdk_server_type','$vi_sdk_server','$vi_sdk_uuid')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -108,7 +148,7 @@ function Import-vDisk($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $vm = $i.vm
         $powerstate = $i.powerstate
@@ -124,8 +164,8 @@ function Import-vDisk($sqlserver, $database, $sqluser, $sqlpassword)
         $disk_path = $i.path
         
     
-    $query = "INSERT INTO vDisk (scandate, customer, vm, powerstate, template, diskid, capacity_mb, israw, disk_mode, thin, eagerly_scrub, controller, unit_num, disk_path) 
-                VALUES ('$scandate','$customer','$vm','$powerstate','$template', '$disk', '$capacity_mb', '$raw', '$disk_mode', '$thin', '$eagerly_scrub', '$controller', '$unit_num', '$disk_path')" 
+    $query = "INSERT INTO vDisk (scan_id, customer, vm, powerstate, template, diskid, capacity_mb, israw, disk_mode, thin, eagerly_scrub, controller, unit_num, disk_path) 
+                VALUES ('$scan_id','$customer','$vm','$powerstate','$template', '$disk', '$capacity_mb', '$raw', '$disk_mode', '$thin', '$eagerly_scrub', '$controller', '$unit_num', '$disk_path')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -151,7 +191,7 @@ function Import-vPartition($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $vm = $i.vm
         $template = $i.template
@@ -171,8 +211,8 @@ function Import-vPartition($sqlserver, $database, $sqluser, $sqlpassword)
         
         
     
-    $query = "INSERT INTO vPartition (scandate, customer, vm, diskid, template, capacity_mb, consumed_mb, free_mb, vm_id, vm_uuid ) 
-                VALUES ('$scandate','$customer','$vm','$disk','$template','$capacity_mb','$consumed_mb','$free_mb','$vm_id','$vm_uuid')" 
+    $query = "INSERT INTO vPartition (scan_id, customer, vm, diskid, template, capacity_mb, consumed_mb, free_mb, vm_id, vm_uuid ) 
+                VALUES ('$scan_id','$customer','$vm','$disk','$template','$capacity_mb','$consumed_mb','$free_mb','$vm_id','$vm_uuid')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -198,7 +238,7 @@ function Import-vHealth($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $vmName = $i.name
         $vmMessage = $i.Message
@@ -207,8 +247,8 @@ function Import-vHealth($sqlserver, $database, $sqluser, $sqlpassword)
         
         
     
-    $query = "INSERT INTO vHealth (scandate, customer, vmName, vmMessage, vi_sdk_server, vi_sdk_uuid) 
-                VALUES ('$scandate','$customer','$vmName','$vmMessage','$vi_sdk_server','$vi_sdk_uuid')" 
+    $query = "INSERT INTO vHealth (scan_id, customer, vmName, vmMessage, vi_sdk_server, vi_sdk_uuid) 
+                VALUES ('$scan_id','$customer','$vmName','$vmMessage','$vi_sdk_server','$vi_sdk_uuid')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -234,7 +274,7 @@ function Import-vCluster($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $ClusterName = $i.name
         $NumHosts = $i.NumHosts
@@ -259,8 +299,8 @@ function Import-vCluster($sqlserver, $database, $sqluser, $sqlpassword)
         
         
     
-    $query = "INSERT INTO vCluster (scandate, customer, ClusterName, NumHosts, numEffectiveHosts, TotalCpu, NumCpuCores, NumCpuThreads, Effective_Cpu, TotalMemory, Effective_Memory, HA_enabled, Failover_Level, AdmissionControlEnabled, Host_monitoring, HB_Datastore_Candidate_Policy, VM_Monitoring, DRS_enabled, DRS_default_VM_behavior, DRS_vmotion_rate, VI_SDK_Server, VI_SDK_UUID ) 
-                VALUES ('$scandate','$customer','$ClusterName','$NumHosts','$numEffectiveHosts','$TotalCpu','$NumCpuCores','$NumCpuThreads','$Effective_Cpu','$TotalMemory','$Effective_Memory','$HA','$Failover','$AdmissionControlEnabled','$Host_monitoring','$HB_Datastore_Candidate_Policy','$VM_Monitoring','$DRS','$DRS_default_VM_behavior','$DRS_vmotion_rate','$vi_sdk_server','$vi_sdk_uuid')" 
+    $query = "INSERT INTO vCluster (scan_id, customer, ClusterName, NumHosts, numEffectiveHosts, TotalCpu, NumCpuCores, NumCpuThreads, Effective_Cpu, TotalMemory, Effective_Memory, HA_enabled, Failover_Level, AdmissionControlEnabled, Host_monitoring, HB_Datastore_Candidate_Policy, VM_Monitoring, DRS_enabled, DRS_default_VM_behavior, DRS_vmotion_rate, VI_SDK_Server, VI_SDK_UUID ) 
+                VALUES ('$scan_id','$customer','$ClusterName','$NumHosts','$numEffectiveHosts','$TotalCpu','$NumCpuCores','$NumCpuThreads','$Effective_Cpu','$TotalMemory','$Effective_Memory','$HA','$Failover','$AdmissionControlEnabled','$Host_monitoring','$HB_Datastore_Candidate_Policy','$VM_Monitoring','$DRS','$DRS_default_VM_behavior','$DRS_vmotion_rate','$vi_sdk_server','$vi_sdk_uuid')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -286,7 +326,7 @@ function Import-vHost($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $HostName = $i.host
         $Datacenter = $i.datacenter
@@ -327,8 +367,8 @@ function Import-vHost($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vHost (scandate, customer, Hostname, Datacenter, CPU_Model, Speed, HT_Available, HT_Active, num_CPU, Cores_per_CPU, num_Cores, CPU_usage, num_Memory, Memory_usage, num_NICs, num_HBAs, num_VMs, VMs_per_Core, num_vCPUs, vCPUs_per_Core, vRAM, VM_Used_memory, VMotion_support, Storage_VMotion_support, Current_EVC, Max_EVC, ESX_Version, Domain, DNS_Search_Order, NTP_Servers, Vendor, Model, Service_tag, OEM_specific_string, BIOS_Version, BIOS_Date, Object_ID, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scandate','$customer','$Hostname','$Datacenter','$CPU_Model','$Speed','$HT_Available','$HT_Active','$num_CPU','$Cores_per_CPU','$num_Cores','$CPU_usage','$num_Memory','$Memory_usage','$num_NICs','$num_HBAs','$num_VMs','$VMs_per_Core','$num_vCPUs','$vCPUs_per_Core','$vRAM','$VM_Used_memory','$VMotion_support','$Storage_VMotion_support','$Current_EVC','$Max_EVC','$ESX_Version','$Domain','$DNS_Search_Order','$NTP_Servers','$Vendor','$Model','$Service_tag','$OEM_specific_string','$BIOS_Version','$BIOS_Date','$Object_ID','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vHost (scan_id, customer, Hostname, Datacenter, CPU_Model, Speed, HT_Available, HT_Active, num_CPU, Cores_per_CPU, num_Cores, CPU_usage, num_Memory, Memory_usage, num_NICs, num_HBAs, num_VMs, VMs_per_Core, num_vCPUs, vCPUs_per_Core, vRAM, VM_Used_memory, VMotion_support, Storage_VMotion_support, Current_EVC, Max_EVC, ESX_Version, Domain, DNS_Search_Order, NTP_Servers, Vendor, Model, Service_tag, OEM_specific_string, BIOS_Version, BIOS_Date, Object_ID, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scan_id','$customer','$Hostname','$Datacenter','$CPU_Model','$Speed','$HT_Available','$HT_Active','$num_CPU','$Cores_per_CPU','$num_Cores','$CPU_usage','$num_Memory','$Memory_usage','$num_NICs','$num_HBAs','$num_VMs','$VMs_per_Core','$num_vCPUs','$vCPUs_per_Core','$vRAM','$VM_Used_memory','$VMotion_support','$Storage_VMotion_support','$Current_EVC','$Max_EVC','$ESX_Version','$Domain','$DNS_Search_Order','$NTP_Servers','$Vendor','$Model','$Service_tag','$OEM_specific_string','$BIOS_Version','$BIOS_Date','$Object_ID','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -353,7 +393,7 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $Name = $i.Name
         $Address = $i.Address
@@ -380,8 +420,8 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vDatastore (scandate, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB_Free, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, dsVersion, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scandate','$customer','$Name','$Address','$Accessible','$Type','$num_VMs','$Capacity_MB','$Provisioned_MB','$In_Use_MB','$Free_MB_Free','$SIOC_enabled','$SIOC_Threshold','$num_Hosts','$Hosts','$Block_size','$Max_Blocks','$num_Extents','$Major_Version','$Version','$VMFS_Upgradeable','$MHA','$URL','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vDatastore (scan_id, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB_Free, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, dsVersion, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scan_id','$customer','$Name','$Address','$Accessible','$Type','$num_VMs','$Capacity_MB','$Provisioned_MB','$In_Use_MB','$Free_MB_Free','$SIOC_enabled','$SIOC_Threshold','$num_Hosts','$Hosts','$Block_size','$Max_Blocks','$num_Extents','$Major_Version','$Version','$VMFS_Upgradeable','$MHA','$URL','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -406,7 +446,7 @@ function Import-vLicense($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $LicenseName = $i.Name
         $LicenseKey	= $i.Key
@@ -424,8 +464,8 @@ function Import-vLicense($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vLicense (scandate, customer, LicenseName, LicenseKey, Labels, Cost_Unit, Total, Used, Expiration_Date, Features, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scandate','$customer','$LicenseName','$LicenseKey','$Labels','$Cost_Unit','$Total','$Used','$Expiration_Date','$Features','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vLicense (scan_id, customer, LicenseName, LicenseKey, Labels, Cost_Unit, Total, Used, Expiration_Date, Features, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scan_id','$customer','$LicenseName','$LicenseKey','$Labels','$Cost_Unit','$Total','$Used','$Expiration_Date','$Features','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -450,7 +490,7 @@ function Import-vMemory($sqlserver, $database, $sqluser, $sqlpassword)
     $count = 1 
     
     foreach($i in $data){ 
-        $scandate = $date
+        $scan_id = $scan_id
         $customer = $customer
         $VM	= $i.vm
         $Powerstate	= $i.Powerstate
@@ -477,8 +517,8 @@ function Import-vMemory($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vMemory (scandate, customer, VM, Powerstate, Template, Size_MB, Overhead, ramMax, Consumed, Consumed_Overhead, ramPrivate, Shared, Swapped, Ballooned, Active, Entitlement, DRS_Entitlement, Shares, Reservation, ramLimit, Hot_Add, VM_ID, VM_UUID, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scandate','$customer','$VM','$Powerstate','$Template','$Size_MB','$Overhead','$Max','$Consumed','$Consumed_Overhead','$Private','$Shared','$Swapped','$Ballooned','$Active','$Entitlement','$DRS_Entitlement','$Shares','$Reservation','$Limit','$Hot_Add','$VM_ID','$VM_UUID','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vMemory (scan_id, customer, VM, Powerstate, Template, Size_MB, Overhead, ramMax, Consumed, Consumed_Overhead, ramPrivate, Shared, Swapped, Ballooned, Active, Entitlement, DRS_Entitlement, Shares, Reservation, ramLimit, Hot_Add, VM_ID, VM_UUID, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scan_id','$customer','$VM','$Powerstate','$Template','$Size_MB','$Overhead','$Max','$Consumed','$Consumed_Overhead','$Private','$Shared','$Swapped','$Ballooned','$Active','$Entitlement','$DRS_Entitlement','$Shares','$Reservation','$Limit','$Hot_Add','$VM_ID','$VM_UUID','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -493,21 +533,24 @@ $excelpath = Get-FileName "c:\"
 
 #Prompt for Customer Name
 #$customer = Read-Host "Enter Customer Name"
-$customer = import-csv C:\temp\companypickerlist.csv | select "Company Name", "Site" | Out-GridView -PassThru -Title "Choose Customer Name for Import" 
-$customer = $customer.'Company Name'
+$customer = Get-CustomerList $sqlserver $database $sqluser $sqlpassword | Out-GridView -PassThru -Title "Choose Customer Name for Import" 
+$customername = $customer.Company_Name
+$customer = $customer.ID
+
 
 ExportWSToCSV $excelpath -csvLoc "C:\CSVFiles\"
 
 #Set date based on file creation
 $filedate = (Get-item $excelpath).LastWriteTime
-$filedate = $filedate.ToString("MM/dd/yyyy")
-$date = Read-host -Prompt "RVTools Import date [$filedate]"
+$date = $filedate.ToString("MM/dd/yyyy")
+$date = Read-host -Prompt "RVTools Import date [$date]"
 if ([string]::IsNullOrWhiteSpace($date))
     {
-    $date=$filedate
+    $date=$filedate.ToString("MM/dd/yyyy")
     }
 
-
+$scan_id = Set-ScanID $sqlserver $database $sqluser $sqlpassword $customer $date
+$scan_id = $scan_id.id
 Import-vInfo $sqlserver $database $sqluser $sqlpassword
 Import-vDisk $sqlserver $database $sqluser $sqlpassword
 Import-vPartition $sqlserver $database $sqluser $sqlpassword
@@ -522,4 +565,4 @@ Import-vMemory $sqlserver $database $sqluser $sqlpassword
 Remove-item C:\CSVFiles\*.csv -Confirm:$false
 
 #Final Notice
-Write-Verbose "Successfully imported $excelpath from $date for $customer" -Verbose
+Write-Verbose "Successfully imported $excelpath from $date for $customername ($scan_id.id)" -Verbose

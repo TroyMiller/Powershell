@@ -1,6 +1,6 @@
 CREATE TABLE vInfo (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 VM VARCHAR(255),
 Powerstate VARCHAR(20),
@@ -33,7 +33,7 @@ VI_SDK_UUID VARCHAR(255),
 
 CREATE TABLE vDisk (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 VM VARCHAR(255),
 Powerstate VARCHAR(20),
@@ -51,7 +51,7 @@ disk_Path VARCHAR(255),
 
 CREATE TABLE vPartition (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 VM VARCHAR(255),
 Template Bit,
@@ -66,7 +66,7 @@ DATA_CLASSIFICATION VARCHAR(255),
 
 CREATE TABLE vHealth (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 vmNAME VARCHAR(255),
 vmMESSAGE VARCHAR(512),
@@ -76,7 +76,7 @@ VI_SDK_UUID VARCHAR(255),
 
 CREATE TABLE vCluster (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 ClusterName VARCHAR(255),
 NumHosts SMALLINT,
@@ -102,7 +102,7 @@ VI_SDK_UUID VARCHAR(255),
 
 CREATE TABLE vHost (
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 Hostname VARCHAR(255),	
 Datacenter VARCHAR(255),	
@@ -145,7 +145,7 @@ VI_SDK_UUID VARCHAR(255),
 
 CREATE TABLE vDatastore(
 ID int IDENTITY(1,1) PRIMARY KEY,
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 dsName VARCHAR(255),
 dsAddress VARCHAR(255),
@@ -173,7 +173,7 @@ VI_SDK_UUID VARCHAR(255),
 );
 
 CREATE TABLE vLicense (
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 LicenseName VARCHAR(255),
 LicenseKey	VARCHAR(255),
@@ -188,7 +188,7 @@ VI_SDK_UUID VARCHAR(255),
 );
 
 CREATE TABLE vMemory(
-ScanDate Date,
+Scan_ID INT,
 Customer VARCHAR(255),
 VM VARCHAR(255),
 Powerstate VARCHAR(255),
@@ -213,4 +213,23 @@ VM_ID VARCHAR(255),
 VM_UUID	VARCHAR(255),
 VI_SDK_Server VARCHAR(255),	
 VI_SDK_UUID VARCHAR(255),
+);
+
+CREATE TABLE Customers(
+ID int IDENTITY(1,1) PRIMARY KEY,
+Lead VARCHAR(255),	
+Company_Name VARCHAR(255),	
+Territory VARCHAR(255),	
+CusType VARCHAR(255),	
+CusStatus VARCHAR(255),	
+CusSite VARCHAR(255),	
+AddressLine1 VARCHAR(255),	
+City VARCHAR(255),	
+CusState VARCHAR(255),	
+);
+
+CREATE TABLE Scan_ID(
+ID int IDENTITY(1,1) PRIMARY KEY,
+Customer_ID int,
+ScanDate Date,
 );
