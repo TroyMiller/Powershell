@@ -392,11 +392,108 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
     } 
 }
 
+
+function Import-vLicense($sqlserver, $database, $sqluser, $sqlpassword)
+{
+
+    
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+    
+    $impcsv = (get-childitem C:\CSVFiles\*vlicense*.csv).FullName
+    $data = import-csv $impcsv 
+    $count = 1 
+    
+    foreach($i in $data){ 
+        $scandate = $date
+        $customer = $customer
+        $LicenseName = $i.Name
+        $LicenseKey	= $i.Key
+        $Labels	= $i.Labels
+        $Cost_Unit = $i."Cost Unit"
+        $Total = $i.total	
+        $Used = $i.Used
+        $Expiration_Date = $i."Expiration Date"
+        $Features = $i.features
+        If ($Features.length -ge 1024)
+        {    
+            $Features = $Features.Substring(0,1024)
+        }
+        $VI_SDK_Server = $i."vi sdk server"
+        $VI_SDK_UUID = $i."vi sdk uuid"
+       
+    
+    $query = "INSERT INTO vLicense (scandate, customer, LicenseName, LicenseKey, Labels, Cost_Unit, Total, Used, Expiration_Date, Features, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scandate','$customer','$LicenseName','$LicenseKey','$Labels','$Cost_Unit','$Total','$Used','$Expiration_Date','$Features','$VI_SDK_Server','$VI_SDK_UUID')" 
+    
+    $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    
+    write-host "vLicense Processing row ..........$count" -foregroundcolor green 
+    
+    $count  = $count + 1 
+    
+    } 
+}
+
+
+function Import-vMemory($sqlserver, $database, $sqluser, $sqlpassword)
+{
+
+    
+    $auth=@{UserName=$sqluser;Password=$sqlpassword}
+    $sql_instance_name = $sqlserver 
+    $db_name = $database
+    
+    $impcsv = (get-childitem C:\CSVFiles\*vmemory*.csv).FullName
+    $data = import-csv $impcsv 
+    $count = 1 
+    
+    foreach($i in $data){ 
+        $scandate = $date
+        $customer = $customer
+        $VM	= $i.vm
+        $Powerstate	= $i.Powerstate
+        $Template = $i.Template
+        $Size_MB = $i."Size MB".replace(",","")
+        $Overhead = $i.Overhead.replace(",","")
+        $Max = $i.Max.replace(",","")
+        $Consumed = $i."Consumed".replace(",","")
+        $Consumed_Overhead = $i."Consumed Overhead".replace(",","")
+        $Private = $i.Private.replace(",","")
+        $Shared	= $i.Shared.replace(",","")
+        $Swapped 	= $i.Swapped.replace(",","")
+        $Ballooned	= $i.Ballooned.replace(",","")
+        $Active = $i.Active.replace(",","")
+        $Entitlement = $i.Entitlement.replace(",","")
+        $DRS_Entitlement = $i."DRS Entitlement".replace(",","")
+        $Shares	= $i.Shares.replace(",","")
+        $Reservation = $i.Reservation.replace(",","")
+        $Limit	= $i.Limit.replace(",","")
+        $Hot_Add = $i."Hot Add"
+        $VM_ID	= $i."VM ID"
+        $VM_UUID = $i."VM UUID"
+        $VI_SDK_Server = $i."vi sdk server"
+        $VI_SDK_UUID = $i."vi sdk uuid"
+       
+    
+    $query = "INSERT INTO vMemory (scandate, customer, VM, Powerstate, Template, Size_MB, Overhead, ramMax, Consumed, Consumed_Overhead, ramPrivate, Shared, Swapped, Ballooned, Active, Entitlement, DRS_Entitlement, Shares, Reservation, ramLimit, Hot_Add, VM_ID, VM_UUID, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scandate','$customer','$VM','$Powerstate','$Template','$Size_MB','$Overhead','$Max','$Consumed','$Consumed_Overhead','$Private','$Shared','$Swapped','$Ballooned','$Active','$Entitlement','$DRS_Entitlement','$Shares','$Reservation','$Limit','$Hot_Add','$VM_ID','$VM_UUID','$VI_SDK_Server','$VI_SDK_UUID')" 
+    
+    $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+    
+    write-host "vMemory Processing row ..........$count" -foregroundcolor green 
+    
+    $count  = $count + 1 
+    
+    } 
+}
+
 $excelpath = Get-FileName "c:\"
 
 #Prompt for Customer Name
 #$customer = Read-Host "Enter Customer Name"
-$customer = import-csv C:\temp\companypickerlist.csv | select "Company Name" | Out-GridView -PassThru -Title "Choose Customer Name for Import" 
+$customer = import-csv C:\temp\companypickerlist.csv | select "Company Name", "Site" | Out-GridView -PassThru -Title "Choose Customer Name for Import" 
 $customer = $customer.'Company Name'
 
 ExportWSToCSV $excelpath -csvLoc "C:\CSVFiles\"
@@ -418,6 +515,8 @@ Import-vHealth $sqlserver $database $sqluser $sqlpassword
 Import-vCluster $sqlserver $database $sqluser $sqlpassword
 Import-vHost $sqlserver $database $sqluser $sqlpassword
 Import-vDatastore $sqlserver $database $sqluser $sqlpassword
+Import-vLicense $sqlserver $database $sqluser $sqlpassword
+Import-vMemory $sqlserver $database $sqluser $sqlpassword
 
 #Remove CSV Files
 Remove-item C:\CSVFiles\*.csv -Confirm:$false
