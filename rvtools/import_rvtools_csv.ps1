@@ -5,6 +5,11 @@ $database = 'rvtools'
 $sqluser = 'rvtools'
 $sqlpassword = 'password'
 
+Function Show-MsgBox ($Text,$Title="",[Windows.Forms.MessageBoxButtons]$Button = "OK",[Windows.Forms.MessageBoxIcon]$Icon="Information")
+{
+[Windows.Forms.MessageBox]::Show("$Text", "$Title", [Windows.Forms.MessageBoxButtons]::$Button, $Icon) | ?{(!($_ -eq "OK"))}
+}
+
 Function ExportWSToCSV ($excelFile, $csvLoc)
 {
     $E = New-Object -ComObject Excel.Application
@@ -60,8 +65,9 @@ function Set-ScanID($sqlserver, $database, $sqluser, $sqlpassword, $Customer_ID,
     $results = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     if ($results) 
     {
-        Write-Host "Duplicate Scan Detected" -ForegroundColor Red
-        exit
+        Write-Host "Possible Duplicate Scan Detected" -ForegroundColor Red
+        If((Show-MsgBox -Title 'Possible Duplicate Scan Detected' -Text 'Would you like to continue with the Import process?' -Button YesNo -Icon Warning) -eq 'No'){Exit}
+        
     }
     Else
     {
@@ -538,7 +544,7 @@ $customername = $customer.Company_Name
 $customer = $customer.ID
 
 
-ExportWSToCSV $excelpath -csvLoc "C:\CSVFiles\"
+
 
 #Set date based on file creation
 $filedate = (Get-item $excelpath).LastWriteTime
@@ -548,6 +554,8 @@ if ([string]::IsNullOrWhiteSpace($date))
     {
     $date=$filedate.ToString("MM/dd/yyyy")
     }
+
+ExportWSToCSV $excelpath -csvLoc "C:\CSVFiles\"
 
 $scan_id = Set-ScanID $sqlserver $database $sqluser $sqlpassword $customer $date
 $scan_id = $scan_id.id
@@ -565,4 +573,4 @@ Import-vMemory $sqlserver $database $sqluser $sqlpassword
 Remove-item C:\CSVFiles\*.csv -Confirm:$false
 
 #Final Notice
-Write-Verbose "Successfully imported $excelpath from $date for $customername ($scan_id.id)" -Verbose
+Write-Verbose "Scan ($scan_id) - Successfully imported $excelpath from $date for $customername " -Verbose
