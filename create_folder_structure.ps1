@@ -2,17 +2,17 @@
 $customers = import-csv C:\temp\companypickerlist.csv
 
 #Where to build the root of the folder structure
-$path = 'C:\temp\Example\'
+$path = 'C:\Users\troym\Capital Data, Inc\Shared Access - TheNextCloud\'
 
 #Intialize Array for folders
 $folders_level1 = @()
 $folders_level2 = @()
 
 #First folders under \Customer\
-$folders_level1 = "Quotes", "Presentations", "Data Collection", "SOW", "Archive", "MS"
+$folders_level1 = "Quotes", "Presentations", "Data Collected", "Archive", "MS", "PS", "WIP", "Documentation"
 
 #Folders under level1
-$folders_level2 = "2017", "2016", "2015"
+#$folders_level2 = "2017", "2016", "2015"
 
 #Function to create path
 Function Create-Folder($folderpath) 
@@ -43,11 +43,11 @@ Foreach ($customer in $customers)
     Create-Folder $subpath
 
         #Make Subfolders for level 2 \Customer\Level1\Level2
-        foreach ($folder2 in $folders_level2)
-        {
-        $sub2path = $subpath + "\" + $folder2
-        Create-Folder $sub2path
-        }
+        #foreach ($folder2 in $folders_level2)
+        #{
+        #$sub2path = $subpath + "\" + $folder2
+        #Create-Folder $sub2path
+        #}
     }
 }
 
