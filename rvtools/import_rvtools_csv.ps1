@@ -1,9 +1,21 @@
 #Import RVTools to SQL using CSV files
-
-$sqlserver = 'troy-sql'
+$sqlserver = 'rvtools'
 $database = 'rvtools'
 $sqluser = 'rvtools'
-$sqlpassword = 'password'
+$sqlpassword = 'rvtools'
+
+
+$snapin = Get-Module SQLServer
+if ($snapin -eq $null) {
+	Install-Module sqlserver
+	if ($error.Count -eq 0) {
+		Write-Host $logfilename "SQL Server Snap-in was successfully enabled." -ForegroundColor Green
+	}
+	else{
+		Write-Host "Could not enable SQLServer Snap-in, exiting script" -ForegroundColor Red
+		Exit
+	}
+}
 
 Function Show-MsgBox ($Text,$Title="",[Windows.Forms.MessageBoxButtons]$Button = "OK",[Windows.Forms.MessageBoxIcon]$Icon="Information")
 {
@@ -12,6 +24,11 @@ Function Show-MsgBox ($Text,$Title="",[Windows.Forms.MessageBoxButtons]$Button =
 
 Function ExportWSToCSV ($excelFile, $csvLoc)
 {
+    If(!(test-path $csvLoc))
+    {
+        New-Item -ItemType Directory -Force -Path $csvLoc
+    }
+
     $E = New-Object -ComObject Excel.Application
     $E.Visible = $false
     $E.DisplayAlerts = $false
@@ -67,7 +84,9 @@ function Set-ScanID($sqlserver, $database, $sqluser, $sqlpassword, $Customer_ID,
     {
         Write-Host "Possible Duplicate Scan Detected" -ForegroundColor Red
         If((Show-MsgBox -Title 'Possible Duplicate Scan Detected' -Text 'Would you like to continue with the Import process?' -Button YesNo -Icon Warning) -eq 'No'){Exit}
-        
+        $query = "INSERT INTO Scan_ID (Customer_ID, ScanDate) VALUES ('$Customer_ID','$scandate')"
+        $create_scanid = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
+        Write-Host "Creating new Scan_ID" -ForegroundColor Green
     }
     Else
     {
@@ -75,7 +94,7 @@ function Set-ScanID($sqlserver, $database, $sqluser, $sqlpassword, $Customer_ID,
         $create_scanid = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
         Write-Host "Creating new Scan_ID" -ForegroundColor Green
     }
-    $query = "SELECT ID FROM SCAN_ID where Customer_ID = '$customer_ID' and ScanDate = '$scandate'"
+    $query = "SELECT TOP 1 ID FROM SCAN_ID where Customer_ID = '$customer_ID' and ScanDate = '$scandate' ORDER BY ID DESC"
     $results = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     Return $results
 }
@@ -409,7 +428,8 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
         $Capacity_MB = $i."Capacity MB".replace(",","")
         $Provisioned_MB = $i."Provisioned MB".replace(",","")
         $In_Use_MB = $i."In Use MB".replace(",","")
-        $Free_MB_Free = $i."Free MB Free %"
+        $Free_MB = $i."Free MB".replace(",","")
+        $FreePercent = $i."Free %"
         $SIOC_enabled = $i."SIOC enabled"
         $SIOC_Threshold = $i."SIOC Threshold"
         $num_Hosts = $i."# Hosts"
@@ -426,8 +446,8 @@ function Import-vDatastore($sqlserver, $database, $sqluser, $sqlpassword)
         $VI_SDK_UUID = $i."vi sdk uuid"
        
     
-    $query = "INSERT INTO vDatastore (scan_id, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB_Free, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, dsVersion, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scan_id','$customer','$Name','$Address','$Accessible','$Type','$num_VMs','$Capacity_MB','$Provisioned_MB','$In_Use_MB','$Free_MB_Free','$SIOC_enabled','$SIOC_Threshold','$num_Hosts','$Hosts','$Block_size','$Max_Blocks','$num_Extents','$Major_Version','$Version','$VMFS_Upgradeable','$MHA','$URL','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vDatastore (scan_id, customer, dsName, dsAddress, Accessible, dsType, num_VMs, Capacity_MB, Provisioned_MB, In_Use_MB, Free_MB, FreePercent, SIOC_enabled, SIOC_Threshold, num_Hosts, Hosts, Block_size, Max_Blocks, num_Extents, Major_Version, dsVersion, VMFS_Upgradeable, MHA, dsURL, VI_SDK_Server, VI_SDK_UUID) 
+                VALUES ('$scan_id','$customer','$Name','$Address','$Accessible','$Type','$num_VMs','$Capacity_MB','$Provisioned_MB','$In_Use_MB','$Free_MB','$FreePercent','$SIOC_enabled','$SIOC_Threshold','$num_Hosts','$Hosts','$Block_size','$Max_Blocks','$num_Extents','$Major_Version','$Version','$VMFS_Upgradeable','$MHA','$URL','$VI_SDK_Server','$VI_SDK_UUID')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     

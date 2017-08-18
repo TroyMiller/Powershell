@@ -1,7 +1,7 @@
-﻿$sqlserver = 'troy-sql'
+﻿$sqlserver = 'rvtools'
 $database = 'rvtools'
 $sqluser = 'rvtools'
-$sqlpassword = 'password'
+$sqlpassword = 'rvtools'
 
 function Get-FileName($initialDirectory)
 {
