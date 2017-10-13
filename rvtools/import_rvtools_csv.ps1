@@ -187,10 +187,12 @@ function Import-vDisk($sqlserver, $database, $sqluser, $sqlpassword)
         $controller = $i.controller
         $unit_num = $i."Unit #"
         $disk_path = $i.path
+        $datacenter = $i.datacenter
+        $cluster = $i.cluster
         
     
-    $query = "INSERT INTO vDisk (scan_id, customer, vm, powerstate, template, diskid, capacity_mb, israw, disk_mode, thin, eagerly_scrub, controller, unit_num, disk_path) 
-                VALUES ('$scan_id','$customer','$vm','$powerstate','$template', '$disk', '$capacity_mb', '$raw', '$disk_mode', '$thin', '$eagerly_scrub', '$controller', '$unit_num', '$disk_path')" 
+    $query = "INSERT INTO vDisk (scan_id, customer, vm, powerstate, template, diskid, capacity_mb, israw, disk_mode, thin, eagerly_scrub, controller, unit_num, disk_path, cluster, datacenter) 
+                VALUES ('$scan_id','$customer','$vm','$powerstate','$template', '$disk', '$capacity_mb', '$raw', '$disk_mode', '$thin', '$eagerly_scrub', '$controller', '$unit_num', '$disk_path','$cluster','$datacenter')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -233,11 +235,13 @@ function Import-vPartition($sqlserver, $database, $sqluser, $sqlpassword)
         }
         $vm_id = $i."vm id"
         $vm_uuid = $i."vm uuid"
+        $datacenter = $i.datacenter
+        $cluster = $i.cluster
         
         
     
-    $query = "INSERT INTO vPartition (scan_id, customer, vm, diskid, template, capacity_mb, consumed_mb, free_mb, vm_id, vm_uuid ) 
-                VALUES ('$scan_id','$customer','$vm','$disk','$template','$capacity_mb','$consumed_mb','$free_mb','$vm_id','$vm_uuid')" 
+    $query = "INSERT INTO vPartition (scan_id, customer, vm, diskid, template, capacity_mb, consumed_mb, free_mb, vm_id, vm_uuid, cluster, datacenter ) 
+                VALUES ('$scan_id','$customer','$vm','$disk','$template','$capacity_mb','$consumed_mb','$free_mb','$vm_id','$vm_uuid','$cluster','$datacenter')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -321,11 +325,11 @@ function Import-vCluster($sqlserver, $database, $sqluser, $sqlpassword)
         $DRS_vmotion_rate = $i."DRS vmotion rate"
         $vi_sdk_server = $i."vi sdk server"
         $vi_sdk_uuid = $i."vi sdk uuid"
-        
-        
+        $datacenter = $i.datacenter
+
     
-    $query = "INSERT INTO vCluster (scan_id, customer, ClusterName, NumHosts, numEffectiveHosts, TotalCpu, NumCpuCores, NumCpuThreads, Effective_Cpu, TotalMemory, Effective_Memory, HA_enabled, Failover_Level, AdmissionControlEnabled, Host_monitoring, HB_Datastore_Candidate_Policy, VM_Monitoring, DRS_enabled, DRS_default_VM_behavior, DRS_vmotion_rate, VI_SDK_Server, VI_SDK_UUID ) 
-                VALUES ('$scan_id','$customer','$ClusterName','$NumHosts','$numEffectiveHosts','$TotalCpu','$NumCpuCores','$NumCpuThreads','$Effective_Cpu','$TotalMemory','$Effective_Memory','$HA','$Failover','$AdmissionControlEnabled','$Host_monitoring','$HB_Datastore_Candidate_Policy','$VM_Monitoring','$DRS','$DRS_default_VM_behavior','$DRS_vmotion_rate','$vi_sdk_server','$vi_sdk_uuid')" 
+    $query = "INSERT INTO vCluster (scan_id, customer, ClusterName, NumHosts, numEffectiveHosts, TotalCpu, NumCpuCores, NumCpuThreads, Effective_Cpu, TotalMemory, Effective_Memory, HA_enabled, Failover_Level, AdmissionControlEnabled, Host_monitoring, HB_Datastore_Candidate_Policy, VM_Monitoring, DRS_enabled, DRS_default_VM_behavior, DRS_vmotion_rate, VI_SDK_Server, VI_SDK_UUID, datacenter ) 
+                VALUES ('$scan_id','$customer','$ClusterName','$NumHosts','$numEffectiveHosts','$TotalCpu','$NumCpuCores','$NumCpuThreads','$Effective_Cpu','$TotalMemory','$Effective_Memory','$HA','$Failover','$AdmissionControlEnabled','$Host_monitoring','$HB_Datastore_Candidate_Policy','$VM_Monitoring','$DRS','$DRS_default_VM_behavior','$DRS_vmotion_rate','$vi_sdk_server','$vi_sdk_uuid','$datacenter')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
@@ -355,6 +359,7 @@ function Import-vHost($sqlserver, $database, $sqluser, $sqlpassword)
         $customer = $customer
         $HostName = $i.host
         $Datacenter = $i.datacenter
+        $cluster = $i.cluster
         $CPU_Model = $i."cpu model"
         $Speed = $i.speed.replace(",","")
         $HT_Available = $i."HT Available"
@@ -541,10 +546,12 @@ function Import-vMemory($sqlserver, $database, $sqluser, $sqlpassword)
         $VM_UUID = $i."VM UUID"
         $VI_SDK_Server = $i."vi sdk server"
         $VI_SDK_UUID = $i."vi sdk uuid"
+        $datacenter = $i.datacenter
+        $cluster = $i.cluster
        
     
-    $query = "INSERT INTO vMemory (scan_id, customer, VM, Powerstate, Template, Size_MB, Overhead, ramMax, Consumed, Consumed_Overhead, ramPrivate, Shared, Swapped, Ballooned, Active, Entitlement, DRS_Entitlement, Shares, Reservation, ramLimit, Hot_Add, VM_ID, VM_UUID, VI_SDK_Server, VI_SDK_UUID) 
-                VALUES ('$scan_id','$customer','$VM','$Powerstate','$Template','$Size_MB','$Overhead','$Max','$Consumed','$Consumed_Overhead','$Private','$Shared','$Swapped','$Ballooned','$Active','$Entitlement','$DRS_Entitlement','$Shares','$Reservation','$Limit','$Hot_Add','$VM_ID','$VM_UUID','$VI_SDK_Server','$VI_SDK_UUID')" 
+    $query = "INSERT INTO vMemory (scan_id, customer, VM, Powerstate, Template, Size_MB, Overhead, ramMax, Consumed, Consumed_Overhead, ramPrivate, Shared, Swapped, Ballooned, Active, Entitlement, DRS_Entitlement, Shares, Reservation, ramLimit, Hot_Add, VM_ID, VM_UUID, VI_SDK_Server, VI_SDK_UUID, cluster, datacenter) 
+                VALUES ('$scan_id','$customer','$VM','$Powerstate','$Template','$Size_MB','$Overhead','$Max','$Consumed','$Consumed_Overhead','$Private','$Shared','$Swapped','$Ballooned','$Active','$Entitlement','$DRS_Entitlement','$Shares','$Reservation','$Limit','$Hot_Add','$VM_ID','$VM_UUID','$VI_SDK_Server','$VI_SDK_UUID','$cluster','$datacenter')" 
     
     $impcsv = invoke-sqlcmd -Database $db_name -Query $query  -serverinstance $sql_instance_name -verbose @auth
     
