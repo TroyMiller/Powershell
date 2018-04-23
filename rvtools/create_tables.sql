@@ -47,6 +47,8 @@ Eagerly_scrub BIT,
 Controller VARCHAR(255),
 Unit_num SMALLINT,
 disk_Path VARCHAR(255),
+Datacenter VARCHAR(255),
+Cluster	VARCHAR(255),
 );
 
 CREATE TABLE vPartition (
@@ -61,6 +63,8 @@ Consumed_MB INT,
 Free_MB INT,
 VM_ID VARCHAR(255),
 VM_UUID VARCHAR(255),
+Datacenter VARCHAR(255),
+Cluster	VARCHAR(255),
 DATA_CLASSIFICATION VARCHAR(255),
 );
 
@@ -79,6 +83,7 @@ ID int IDENTITY(1,1) PRIMARY KEY,
 Scan_ID INT,
 Customer VARCHAR(255),
 ClusterName VARCHAR(255),
+Datacenter VARCHAR(255),
 NumHosts SMALLINT,
 numEffectiveHosts SMALLINT,
 TotalCpu INT,
@@ -213,6 +218,8 @@ VM_ID VARCHAR(255),
 VM_UUID	VARCHAR(255),
 VI_SDK_Server VARCHAR(255),	
 VI_SDK_UUID VARCHAR(255),
+Datacenter VARCHAR(255),
+Cluster	VARCHAR(255),
 );
 
 CREATE TABLE Customers(
